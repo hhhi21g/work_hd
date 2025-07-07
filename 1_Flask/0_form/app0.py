@@ -10,7 +10,7 @@ def index():
 
 @app.route('/api/submit', methods=['POST'])
 def submit():
-    data = request.get_json()
+    data = request.get_json()  # 解析前端发送的JSON数据为Python对象,典型用于POST
     name = data.get('name', '')
     if not name:
         return jsonify({'message': '输入不能为空'})
