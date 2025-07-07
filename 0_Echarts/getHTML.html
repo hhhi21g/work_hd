@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <title>Title</title>
+</head>
+<body>
+<div id="chart0" style="width:600px;height:400px; margin: 0 auto;"></div>
+<script>
+    // 找到容器
+    var dom = document.getElementById('chart0');
+    // 基于dom初始化一个echarts实例
+    var chart0 = echarts.init(dom);
+</script>
+
+<script>
+    var option = {
+        title: {text: '一周走势'},
+        grid: {
+            containLabel: true  // 自动给轴名称留边距
+        },
+        tooltip: {trigger: 'axis'},
+        xAxis: {
+            type: 'category',
+            name: '天数',
+            nameLocation: 'middle',  // 名称位置: 'start', ' middle' , 'end'
+            nameGap: 30,             // 名称与轴线的距离
+            nameTextStyle: {         // 名称字体
+                fontSize: 14,
+                fontWeight: 'bold'
+            },
+            data: [1, 2, 3, 4, 5, 6, 7]
+        },
+        yAxis: {
+            type: 'value',
+            name: '销量',
+            nameLocation: 'middle',
+            nameRotate: 90,  // 纵坐标名称旋转角度,默认0
+            nameTextStyle: {
+                fontSize: 14,
+                fontWeight: 'bold'
+            },
+            nameGap: 50
+        },
+        series: [{
+            name: '销量',
+            // line: 折线图
+            // bar: 柱状图
+            // pie: 饼
+            // scatter: 散点
+            // line + areaStyle:{} : 面积图，带填充的折线图
+            // 其他: 箱线图,热力图,词云,树图,力导向图等
+            type: 'line',
+            areaStyle: {}, // 开启面积填充
+            data: [120, 200, 150, 80, 70, 110, 130]
+        }],
+        toolbox: {
+            show: true,
+            orient: 'horizontal',
+            top: '10%',
+            right: '5%',
+            feature: {
+                saveAsImage: {
+                    show: true,
+                    title: '下载为图片'
+                },
+                dataView: {
+                    show: true,
+                    title: '数据视图',
+                    readOnly: false  // 可编辑
+                },
+                restore: {
+                    show: true,
+                    title: '还原'
+                },
+                dataZoom: {
+                    show: true,
+                    title: {
+                        zoom: "区域缩放",
+                        back: "缩放还原"
+                    }
+                },
+                magicType: {
+                    show: true,
+                    title: {
+                        line: "切换折线图",
+                        bar: "切换柱状图"
+                    },
+                    type: ['line', 'bar', 'stack', 'tiled']
+                },
+                brush: {
+                    show: true,
+                    title: {
+                        rect: '矩形选择',
+                        polygon: '全选',
+                        lineX: '横向选择',
+                        lineY: '纵向选择',
+                        keep: '保持选择',
+                        clear: '清除选择'
+                    },
+                    type: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear']
+                }
+            }
+        }
+    };
+
+    // 使用option配置项和数据显示图表
+    chart0.setOption(option);
+</script>
+
+<!--根据缩放网页自动缩放表格大小-->
+<script>
+    window.addEventListener('resize', function () {
+        chart0.resize();
+    })
+</script>
+</body>
+</html>
+
