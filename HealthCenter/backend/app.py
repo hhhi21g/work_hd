@@ -3,7 +3,6 @@ import pymysql
 import os
 import sys
 
-import get_pic
 
 app = Flask(__name__)
 
@@ -161,6 +160,64 @@ def api_news():
     })
 
 
+@app.route('/api/notice')
+def api_notice():
+    page = int(request.args.get('page', 1))
+    size = int(request.args.get('size', 10))
+    offset = (page - 1) * size
+
+    db = get_db_connection()
+    cursor = db.cursor()
+
+    # 获取总数量
+    cursor.execute("SELECT COUNT(*) AS total FROM notice")
+    total = cursor.fetchone()['total']
+
+    # 获取当前页数据
+    cursor.execute("SELECT title, content, publish_time, url FROM notice ORDER BY publish_time DESC LIMIT %s OFFSET %s",
+                   (size, offset))
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+
+    for item in result:
+        item['summary'] = (item['content'][:100] + '...') if item['content'] else "（暂无正文内容）"
+
+    return jsonify({
+        "total": total,
+        "data": result
+    })
+
+
+@app.route('/api/policy')
+def api_policy():
+    page = int(request.args.get('page', 1))
+    size = int(request.args.get('size', 10))
+    offset = (page - 1) * size
+
+    db = get_db_connection()
+    cursor = db.cursor()
+
+    # 获取总数量
+    cursor.execute("SELECT COUNT(*) AS total FROM policy")
+    total = cursor.fetchone()['total']
+
+    # 获取当前页数据
+    cursor.execute("SELECT title, content, publish_time, url FROM policy ORDER BY publish_time DESC LIMIT %s OFFSET %s",
+                   (size, offset))
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+
+    for item in result:
+        item['summary'] = (item['content'][:100] + '...') if item['content'] else "（暂无正文内容）"
+
+    return jsonify({
+        "total": total,
+        "data": result
+    })
+
+
 @app.route('/')
 def home():
     return render_template('home.html', active_page='home')
@@ -186,9 +243,44 @@ def knowledge():
     return render_template('knowledge.html', active_page='knowledge')
 
 
+@app.route('/application')
+def application():
+    return render_template('application.html', active_page='application')
+
+
 @app.route('/about')
 def about():
     return render_template('about.html', active_page='about')
+
+
+@app.route('/bmi')
+def bmi():
+    return render_template('bmi.html', active_page='bmi')
+
+
+@app.route('/water-intake')
+def water_intake():
+    return render_template('water-intake.html', active_page='water-intake')
+
+
+@app.route('/sleep-quality')
+def sleep_quality():
+    return render_template('sleep-quality.html', active_page='sleep-quality')
+
+
+@app.route('/emergency-guide')
+def emergency_guide():
+    return render_template('emergency-guide.html', active_page='emergency-guide')
+
+
+@app.route('/info-guide')
+def info_guide():
+    return render_template('info-guide.html', active_page='info-guide')
+
+
+@app.route('/chest-diagnosis')
+def chest_diagnosis():
+    return render_template('chest-diagnosis.html', active_page='chest-diagnosis')
 
 
 if __name__ == '__main__':

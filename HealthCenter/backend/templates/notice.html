@@ -113,7 +113,7 @@
     </ul>
 </div>
 
-<h1>新闻中心</h1>
+<h1>通知公告</h1>
 <div id="news-list">正在加载...</div>
 <div id="pagination"></div>
 
@@ -123,7 +123,7 @@
     let totalPages = 1;
 
     function loadPage(page) {
-        fetch(`/api/news?page=${page}&size=${pageSize}`)
+        fetch(`/api/notice?page=${page}&size=${pageSize}`)
             .then(response => response.json())
             .then(result => {
                 const data = result.data;
