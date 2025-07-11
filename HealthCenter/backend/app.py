@@ -12,20 +12,6 @@ GENERATED_DIR = os.path.join("static", "generated")
 os.makedirs(GENERATED_DIR, exist_ok=True)
 
 
-# @app.route("/generate_image", methods=["POST"])
-# def generate():
-#     data = request.json
-#     prompt = data.get("prompt")
-#     if not prompt:
-#         return jsonify({"error": "需要提供 prompt"}), 400
-#
-#     filename = f"{hash(prompt)}.png"
-#     output_path = os.path.join(GENERATED_DIR, filename)
-#
-#     get_pic.generate_image(prompt, output_path)
-#     return jsonify({"url": f"/static/generated/{filename}"})
-
-
 def get_db_connection():
     return pymysql.connect(
         host='212.129.223.4',
@@ -37,33 +23,79 @@ def get_db_connection():
     )
 
 
-@app.route('/api/news')
-def api_news():
+@app.route('/api/home/news')
+def api_home_news():
+    selected_ids = [1508, 1529, 1591, 1618, 1926, 1939, 1959, 2634, 2070, 2004]
+
     db = get_db_connection()
     cursor = db.cursor()
+
+    # 使用 IN 子句查询指定 ID 的新闻数据
     cursor.execute(
-        "SELECT title, content, publish_time, url, image_filename FROM news ORDER BY publish_time DESC LIMIT 10")
+        f"SELECT title, content, publish_time, url FROM news WHERE id IN ({','.join(map(str, selected_ids))}) ORDER BY FIELD(id, {','.join(map(str, selected_ids))})")
     result = cursor.fetchall()
     cursor.close()
     db.close()
 
-    for item in result:
+    for index, item in enumerate(result):
         if item['content']:
             item['summary'] = item['content'][:100] + '...'
         else:
             item['summary'] = "（暂无正文内容）"
 
-        # 获取新闻图片的静态路径，如果没有图片，则使用默认图片
-        image_filename = item.get('image_filename')
-        if image_filename and os.path.exists(os.path.join("static", "images", image_filename)):
-            item['image_url'] = f"/static/images/{image_filename}"
+        # 根据新闻的顺序为每条新闻分配静态图片路径
+        image_filename = f"a{index + 1}.jpg"  # 从 a1.jpg 开始
+        image_path = os.path.join("static", "carousel", image_filename)
+
+        if os.path.exists(image_path):
+            item['image_url'] = f"/static/carousel/{image_filename}"
         else:
             item['image_url'] = "/static/default.jpg"  # 默认图片
 
     return jsonify(result)
 
+@app.route('/api/home2/news')
+def api_home2_news():
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("SELECT title, url FROM news ORDER BY publish_time DESC LIMIT 15")
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(result)
 
-# API 路由：返回最新10条新闻
+@app.route('/api/home/policies')
+def api_home_policies():
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("SELECT title, url FROM policy ORDER BY publish_time DESC LIMIT 15")
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(result)
+
+
+@app.route('/api/home/knowledges')
+def api_home_knowledges():
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("SELECT title, url FROM knowledges ORDER BY publish_time DESC LIMIT 15")
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(result)
+
+
+@app.route('/api/home/notices')
+def api_home_notices():
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute("SELECT title, url FROM notice ORDER BY publish_time DESC LIMIT 15")
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+    return jsonify(result)
+
 @app.route('/api/knowledges')
 def api_knowledges():
     db = get_db_connection()
@@ -115,3 +147,5 @@ def about():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+

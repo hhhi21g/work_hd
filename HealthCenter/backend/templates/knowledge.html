@@ -129,9 +129,9 @@
         .then(response => response.json())
         .then(data => {
             // 最新新闻滚动展示（取前5条标题）
-            const scroll = document.getElementById('scroll-news');
-            const titles = data.slice(0, 5).map(n => n.title).join(" ｜ ");
-            scroll.textContent = titles;
+            // const scroll = document.getElementById('scroll-news');
+            // const titles = data.slice(0, 5).map(n => n.title).join(" ｜ ");
+            // scroll.textContent = titles;
 
             // 全部新闻列表
             const list = document.getElementById('news-list');

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="about-us-section">
+    <div class="about-header">
+        <h1>关于健康大数据应用创新研发中心</h1>
+        <div class="divider"></div>
+    </div>
+
+    <div class="about-content">
+        <div class="mission-section">
+            <h2><i class="icon-target"></i> 中心使命</h2>
+            <p>
+                健康大数据应用创新研发中心致力于整合医疗健康领域大数据资源，推动数据驱动的医疗健康创新，为公共卫生决策、医疗服务优化和健康产业发展提供强有力的数据支撑和技术支持。</p>
+        </div>
+
+        <div class="data-platform-section">
+            <h2><i class="icon-database"></i> 数据平台</h2>
+            <p>
+                我们基于先进的大数据平台技术，整合了来自大数据局、卫健委、经信局的医疗数据、产业数据和气象数据，并结合互联网爬虫数据，构建了全面的健康数据资源池。通过高性能的大数据系统软件集合，我们实现了处理能力更强、更易于扩展、性能更高的统一数据计算平台。</p>
+        </div>
+
+        <div class="functions-section">
+            <h2><i class="icon-apps"></i> 主要功能</h2>
+            <ul class="function-list">
+                <li><span class="function-icon">📊</span> 多源健康数据整合与分析</li>
+                <li><span class="function-icon">🔍</span> 医疗健康趋势研究与预测</li>
+                <li><span class="function-icon">💡</span> 公共卫生决策支持</li>
+                <li><span class="function-icon">🤝</span> 产学研合作平台</li>
+                <li><span class="function-icon">📈</span> 健康产业数据服务</li>
+            </ul>
+        </div>
+
+        <div class="contact-section">
+            <h2><i class="icon-contact"></i> 联系我们</h2>
+            <div class="contact-info">
+                <p><strong>地址：</strong> [请填写具体地址]</p>
+                <p><strong>电话：</strong> [请填写联系电话]</p>
+                <p><strong>邮箱：</strong> [请填写联系邮箱]</p>
+                <p><strong>工作时间：</strong> 周一至周五 9:00-17:30</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .about-us-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        font-family: 'Microsoft YaHei', Arial, sans-serif;
+        color: #333;
+    }
+
+    .about-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .about-header h1 {
+        font-size: 32px;
+        color: #2a5caa;
+        margin-bottom: 15px;
+    }
+
+    .divider {
+        height: 3px;
+        width: 80px;
+        background: #2a5caa;
+        margin: 0 auto;
+    }
+
+    .about-content h2 {
+        color: #2a5caa;
+        border-left: 4px solid #2a5caa;
+        padding-left: 15px;
+        margin: 30px 0 20px;
+        font-size: 24px;
+    }
+
+    .about-content p {
+        line-height: 1.8;
+        margin-bottom: 20px;
+        text-align: justify;
+    }
+
+    .function-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .function-list li {
+        padding: 10px 0;
+        border-bottom: 1px dashed #eee;
+        display: flex;
+        align-items: center;
+    }
+
+    .function-icon {
+        margin-right: 15px;
+        font-size: 20px;
+    }
+
+    .contact-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    .contact-info p {
+        margin: 10px 0;
+    }
+
+    @media (max-width: 768px) {
+        .about-header h1 {
+            font-size: 26px;
+        }
+
+        .about-content h2 {
+            font-size: 20px;
+        }
+    }
+</style>
+
+{% endblock %}
