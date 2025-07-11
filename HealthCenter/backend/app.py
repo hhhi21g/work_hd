@@ -54,6 +54,7 @@ def api_home_news():
 
     return jsonify(result)
 
+
 @app.route('/api/home2/news')
 def api_home2_news():
     db = get_db_connection()
@@ -63,6 +64,7 @@ def api_home2_news():
     cursor.close()
     db.close()
     return jsonify(result)
+
 
 @app.route('/api/home/policies')
 def api_home_policies():
@@ -96,11 +98,23 @@ def api_home_notices():
     db.close()
     return jsonify(result)
 
+
 @app.route('/api/knowledges')
 def api_knowledges():
+    page = int(request.args.get('page', 1))
+    size = int(request.args.get('size', 10))
+    offset = (page - 1) * size
+
     db = get_db_connection()
     cursor = db.cursor()
-    cursor.execute("SELECT title, content, publish_time, url FROM knowledges ORDER BY publish_time DESC LIMIT 10")
+    cursor.execute("SELECT COUNT(*) AS total FROM knowledges")
+    total = cursor.fetchone()['total']
+
+    # 获取当前页数据
+    cursor.execute(
+        "SELECT title, content, publish_time, url FROM knowledges ORDER BY publish_time DESC LIMIT %s OFFSET %s",
+        (size, offset))
+
     result = cursor.fetchall()
     cursor.close()
     db.close()
@@ -112,7 +126,39 @@ def api_knowledges():
         else:
             item['summary'] = "（暂无正文内容）"
 
-    return jsonify(result)
+    return jsonify({
+        "total": total,
+        "data": result
+    })
+
+
+@app.route('/api/news')
+def api_news():
+    page = int(request.args.get('page', 1))
+    size = int(request.args.get('size', 10))
+    offset = (page - 1) * size
+
+    db = get_db_connection()
+    cursor = db.cursor()
+
+    # 获取总数量
+    cursor.execute("SELECT COUNT(*) AS total FROM news")
+    total = cursor.fetchone()['total']
+
+    # 获取当前页数据
+    cursor.execute("SELECT title, content, publish_time, url FROM news ORDER BY publish_time DESC LIMIT %s OFFSET %s",
+                   (size, offset))
+    result = cursor.fetchall()
+    cursor.close()
+    db.close()
+
+    for item in result:
+        item['summary'] = (item['content'][:100] + '...') if item['content'] else "（暂无正文内容）"
+
+    return jsonify({
+        "total": total,
+        "data": result
+    })
 
 
 @app.route('/')
@@ -147,5 +193,3 @@ def about():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-

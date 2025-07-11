@@ -12,7 +12,6 @@
             background: #f5f5f5;
         }
 
-        /* ✅ 顶部导航栏 */
         .navbar {
             background-color: #007acc;
             padding: 1em 2em;
@@ -49,32 +48,6 @@
             margin: 1em 2em 0 2em;
         }
 
-        /* ✅ 滚动新闻样式 */
-        .scroll-container {
-            background: white;
-            margin: 1em 2em;
-            padding: 1em;
-            overflow: hidden;
-            height: 2em;
-            position: relative;
-        }
-
-        .scroll-text {
-            position: absolute;
-            white-space: nowrap;
-            animation: scroll-left 15s linear infinite;
-        }
-
-        @keyframes scroll-left {
-            0% {
-                left: 100%;
-            }
-            100% {
-                left: -100%;
-            }
-        }
-
-        /* ✅ 新闻列表样式 */
         .news-item {
             background: white;
             padding: 1em;
@@ -97,11 +70,36 @@
             font-size: 0.9em;
             margin-top: 0.5em;
         }
+
+        /* 分页按钮样式 */
+        #pagination {
+            text-align: center;
+            margin: 1em 0 2em 0;
+        }
+
+        #pagination button {
+            margin: 0 0.3em;
+            padding: 0.4em 0.8em;
+            border: none;
+            background-color: #007acc;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: default;
+        }
+
+        #pagination button.active {
+            background-color: #005fa3;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<!-- ✅ 顶部导航栏 -->
 <div class="navbar">
     <div class="logo">健康大数据门户</div>
     <ul>
@@ -115,41 +113,73 @@
     </ul>
 </div>
 
-<!-- ✅ 滚动的最新新闻标题 -->
-<div class="scroll-container">
-    <div class="scroll-text" id="scroll-news">加载最新知识中...</div>
-</div>
-
-<!-- ✅ 新闻标题 + 摘要 + 时间 -->
-<h1>健康知识</h1>
-<div id="news-list">正在加载知识...</div>
+<h1>新闻中心</h1>
+<div id="news-list">正在加载...</div>
+<div id="pagination"></div>
 
 <script>
-    fetch('/api/knowledges')
-        .then(response => response.json())
-        .then(data => {
-            // 最新新闻滚动展示（取前5条标题）
-            // const scroll = document.getElementById('scroll-news');
-            // const titles = data.slice(0, 5).map(n => n.title).join(" ｜ ");
-            // scroll.textContent = titles;
+    const pageSize = 10;
+    let currentPage = 1;
+    let totalPages = 1;
 
-            // 全部新闻列表
-            const list = document.getElementById('news-list');
-            list.innerHTML = '';
-            data.forEach(news => {
-                const div = document.createElement('div');
-                div.className = 'news-item';
-                div.innerHTML = `
-                    <div class="news-title"><a href="${news.url}" target="_blank">${news.title}</a></div>
-                    <div class="news-summary">${news.summary}</div>
-                    <div class="news-time">${news.publish_time ? news.publish_time.slice(0, 10) : ''}</div>
-                `;
-                list.appendChild(div);
+    function loadPage(page) {
+        fetch(`/api/news?page=${page}&size=${pageSize}`)
+            .then(response => response.json())
+            .then(result => {
+                const data = result.data;
+                const total = result.total;
+                totalPages = Math.ceil(total / pageSize);
+                currentPage = page;
+
+                const list = document.getElementById('news-list');
+                list.innerHTML = '';
+
+                data.forEach(news => {
+                    const div = document.createElement('div');
+                    div.className = 'news-item';
+                    div.innerHTML = `
+                        <div class="news-title"><a href="${news.url}" target="_blank">${news.title}</a></div>
+                        <div class="news-summary">${news.summary}</div>
+                        <div class="news-time">${news.publish_time ? news.publish_time.slice(0, 10) : ''}</div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                renderPagination();
+            })
+            .catch(err => {
+                document.getElementById('news-list').innerText = '加载失败：' + err;
             });
-        })
-        .catch(err => {
-            document.getElementById('news-list').innerText = '加载失败：' + err;
-        });
+    }
+
+    function renderPagination() {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+
+        const createBtn = (text, page, disabled, active = false) => {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            if (disabled) btn.disabled = true;
+            if (active) btn.classList.add('active');
+            btn.onclick = () => loadPage(page);
+            return btn;
+        };
+
+        pagination.appendChild(createBtn('« 上一页', currentPage - 1, currentPage === 1));
+
+        let start = Math.max(1, currentPage - 4);
+        let end = Math.min(totalPages, start + 9);
+        if (end - start < 9) start = Math.max(1, end - 9);
+
+        for (let i = start; i <= end; i++) {
+            pagination.appendChild(createBtn(i, i, false, i === currentPage));
+        }
+
+        pagination.appendChild(createBtn('下一页 »', currentPage + 1, currentPage === totalPages));
+    }
+
+    // 初始化加载第一页
+    loadPage(1);
 </script>
 </body>
 </html>
