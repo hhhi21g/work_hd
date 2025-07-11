@@ -1,5 +1,104 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>健康新闻门户</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="/static/css/navbar.css">
+    <title>BMI计算器</title>
+
+    <style>
+        .about-us-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            color: #333;
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .about-header h1 {
+            font-size: 32px;
+            color: #2a5caa;
+            margin-bottom: 15px;
+        }
+
+        .divider {
+            height: 3px;
+            width: 80px;
+            background: #2a5caa;
+            margin: 0 auto;
+        }
+
+        .about-content h2 {
+            color: #2a5caa;
+            border-left: 4px solid #2a5caa;
+            padding-left: 15px;
+            margin: 30px 0 20px;
+            font-size: 24px;
+        }
+
+        .about-content p {
+            line-height: 1.8;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .function-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .function-list li {
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .function-icon {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .contact-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .contact-info p {
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .about-header h1 {
+                font-size: 26px;
+            }
+
+            .about-content h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">健康大数据门户</div>
+    <ul>
+        <li><a href="/">首页</a></li>
+        <li><a href="/news">新闻中心</a></li>
+        <li><a href="/notice">通知公告</a></li>
+        <li><a href="/application">应用中心</a></li>
+        <li><a href="/policy">卫生政策</a></li>
+        <li><a href="/knowledge">健康知识</a></li>
+        <li><a href="/about">关于我们</a></li>
+    </ul>
+</div>
 <div class="about-us-section">
     <div class="about-header">
         <h1>关于健康大数据应用创新研发中心</h1>
@@ -42,83 +141,5 @@
     </div>
 </div>
 
-<style>
-    .about-us-section {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 20px;
-        font-family: 'Microsoft YaHei', Arial, sans-serif;
-        color: #333;
-    }
-
-    .about-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-
-    .about-header h1 {
-        font-size: 32px;
-        color: #2a5caa;
-        margin-bottom: 15px;
-    }
-
-    .divider {
-        height: 3px;
-        width: 80px;
-        background: #2a5caa;
-        margin: 0 auto;
-    }
-
-    .about-content h2 {
-        color: #2a5caa;
-        border-left: 4px solid #2a5caa;
-        padding-left: 15px;
-        margin: 30px 0 20px;
-        font-size: 24px;
-    }
-
-    .about-content p {
-        line-height: 1.8;
-        margin-bottom: 20px;
-        text-align: justify;
-    }
-
-    .function-list {
-        list-style: none;
-        padding: 0;
-    }
-
-    .function-list li {
-        padding: 10px 0;
-        border-bottom: 1px dashed #eee;
-        display: flex;
-        align-items: center;
-    }
-
-    .function-icon {
-        margin-right: 15px;
-        font-size: 20px;
-    }
-
-    .contact-info {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 5px;
-    }
-
-    .contact-info p {
-        margin: 10px 0;
-    }
-
-    @media (max-width: 768px) {
-        .about-header h1 {
-            font-size: 26px;
-        }
-
-        .about-content h2 {
-            font-size: 20px;
-        }
-    }
-</style>
-
-{% endblock %}
+</body>
+</html>

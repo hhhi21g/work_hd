@@ -3,7 +3,6 @@ import pymysql
 import os
 import sys
 
-
 app = Flask(__name__)
 
 # 设置保存图片的静态目录

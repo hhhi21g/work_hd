@@ -6,96 +6,64 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            background: #f5f5f5;
-        }
-
-        /* ✅ 顶部导航栏 */
+        /* navbar.css */
         .navbar {
-            background-color: #007acc;
+            background: linear-gradient(to right, #1e5799, #207cca);
             padding: 1em 2em;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .navbar .logo {
-            font-size: 1.2em;
+            font-size: 1.4rem;
             font-weight: bold;
+            letter-spacing: 0.5px;
         }
 
         .navbar ul {
             list-style: none;
             display: flex;
-            gap: 20px;
+            gap: 25px;
             margin: 0;
             padding: 0;
         }
 
         .navbar li a {
-            color: white;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
 
         .navbar li a:hover {
-            text-decoration: underline;
+            background: rgba(255, 255, 255, 0.15);
+            text-decoration: none;
         }
 
-        h1 {
-            color: #007acc;
-            margin: 1em 2em 0 2em;
+        .navbar li a.active {
+            background: rgba(255, 255, 255, 0.25);
         }
 
-        /* ✅ 滚动新闻样式 */
-        .scroll-container {
-            background: white;
-            margin: 1em 2em;
-            padding: 1em;
-            overflow: hidden;
-            height: 2em;
-            position: relative;
-        }
-
-        .scroll-text {
-            position: absolute;
-            white-space: nowrap;
-            animation: scroll-left 15s linear infinite;
-        }
-
-        @keyframes scroll-left {
-            0% {
-                left: 100%;
+        @media (max-width: 600px) {
+            .navbar ul {
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: center;
             }
-            100% {
-                left: -100%;
+
+            .navbar {
+                flex-direction: column;
+                padding: 15px;
             }
-        }
 
-        /* ✅ 新闻列表样式 */
-        .news-item {
-            background: white;
-            padding: 1em;
-            margin: 1em 2em;
-            border-radius: 6px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .news-title {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-
-        .news-summary {
-            margin-top: 0.5em;
-        }
-
-        .news-time {
-            color: gray;
-            font-size: 0.9em;
-            margin-top: 0.5em;
+            .navbar .logo {
+                margin-bottom: 15px;
+            }
         }
     </style>
 </head>
@@ -104,7 +72,7 @@
 <div class="navbar">
     <div class="logo">健康大数据门户</div>
     <ul>
-        <li><a href="/">门户首页</a></li>
+        <li><a href="/">首页</a></li>
         <li><a href="/news">新闻中心</a></li>
         <li><a href="/notice">通知公告</a></li>
         <li><a href="/application">应用中心</a></li>
