@@ -1,9 +1,23 @@
+import pandas as pd
 from flask import Flask, jsonify, render_template, send_from_directory, request
 import pymysql
 import os
 import sys
+from werkzeug.utils import secure_filename
+import os
+from PIL import Image
+import torch
+import joblib
+from torchvision import transforms, models
+import torch.nn as nn
+import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
+
+UPLOAD_FOLDER = 'static\\uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # 设置保存图片的静态目录
 GENERATED_DIR = os.path.join("static", "generated")
@@ -277,9 +291,197 @@ def info_guide():
     return render_template('info-guide.html', active_page='info-guide')
 
 
-@app.route('/chest-diagnosis')
+@app.route('/chest-diagnosis', methods=['GET', 'POST'])
 def chest_diagnosis():
-    return render_template('chest-diagnosis.html', active_page='chest-diagnosis')
+    result = None
+
+    # 14 类标签（请根据你的模型调整）
+    class_names = [
+        '肺不张／肺萎陷',
+        '心脏肥大',
+        '胸腔积液',
+        '渗透',
+        '肿块',
+        '结节',
+        '肺炎',
+        '气胸',
+        '实变',
+        '浮肿／水肿',
+        '气肿／肺气肿',
+        '纤维化',
+        '胸膜增厚',
+        '疝气'
+    ]
+
+    # 图像预处理
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),  # 修改成模型需要的尺寸
+        transforms.ToTensor(),
+        transforms.Normalize([0.5] * 3, [0.5] * 3)
+    ])
+
+    # 加载模型（仅第一次加载）
+    global model_chest
+    if 'model_chest' not in globals():
+        model_chest = models.resnet18(num_classes=14)
+        model_chest.load_state_dict(torch.load('models/chest_model.pth', map_location='cpu'))
+        model_chest.eval()
+
+    if request.method == 'POST':
+        file = request.files.get('ct_image')
+        if file:
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(save_path)
+
+            # 图像预处理
+            image = Image.open(save_path).convert('RGB')
+            input_tensor = transform(image).unsqueeze(0)  # shape: [1, 3, 224, 224]
+
+            # 模型推理
+            with torch.no_grad():
+                output = model_chest(input_tensor)
+                prob = torch.softmax(output, dim=1)[0]
+                pred_idx = torch.argmax(prob).item()
+                pred_label = class_names[pred_idx]
+                confidence = f"{prob[pred_idx].item() * 100:.2f}"
+
+            result = {
+                'label': pred_label,
+                'confidence': confidence,
+                'filename': filename
+            }
+
+    return render_template('chest-diagnosis.html', active_page='chest-diagnosis', result=result)
+
+
+@app.route('/diabetes-diagnosis', methods=['GET', 'POST'])
+def diabetes_diagnosis():
+    result = None
+
+    # 定义模型结构（必须与训练时一致）
+    # 正确的模型结构（与你训练时完全一致）
+    class DiabetesNet(nn.Module):
+        def __init__(self):
+            super(DiabetesNet, self).__init__()
+            self.net = nn.Sequential(
+                nn.Linear(8, 64),
+                nn.ReLU(),
+                nn.Dropout(0.3),
+
+                nn.Linear(64, 32),
+                nn.ReLU(),
+                nn.Dropout(0.2),
+
+                nn.Linear(32, 16),
+                nn.ReLU(),
+
+                nn.Linear(16, 1),
+
+                nn.Sigmoid()
+            )
+
+        def forward(self, x):
+            return self.net(x)
+
+    # 加载模型（仅第一次）
+    global diabetes_model
+    if 'diabetes_model' not in globals():
+        diabetes_model = DiabetesNet()
+        diabetes_model.load_state_dict(torch.load("models/diabetes_model.pth", map_location='cpu'))
+        diabetes_model.eval()
+
+    # 加载标准化器（仅第一次）
+    global diabetes_scaler
+    if 'diabetes_scaler' not in globals():
+        import joblib
+        diabetes_scaler = joblib.load("models/diabetes_scaler.pkl")
+
+    if request.method == 'POST':
+        try:
+            # 读取表单数据并转为 float
+            user_input = [
+                float(request.form.get("Pregnancies")),
+                float(request.form.get("Glucose")),
+                float(request.form.get("BloodPressure")),
+                float(request.form.get("SkinThickness")),
+                float(request.form.get("Insulin")),
+                float(request.form.get("BMI")),
+                float(request.form.get("DiabetesPedigreeFunction")),
+                float(request.form.get("Age"))
+            ]
+
+            # 标准化
+            input_scaled = diabetes_scaler.transform([user_input])  # shape: [1, 8]
+            input_tensor = torch.tensor(input_scaled, dtype=torch.float32)
+
+            # 模型预测
+            with torch.no_grad():
+                output = diabetes_model(input_tensor)
+                prob = output.item()
+                label = "患糖尿病" if prob >= 0.5 else "未患糖尿病"
+
+            result = {
+                "label": label,
+                "confidence": f"{prob * 100:.2f}"
+            }
+
+        except Exception as e:
+            result = {
+                "label": "输入错误",
+                "confidence": "0.00"
+            }
+
+    return render_template("diabetes-diagnosis.html", active_page="diabetes-diagnosis", result=result)
+
+
+@app.route('/heart-diagnosis', methods=['GET', 'POST'])
+def heart_diagnosis():
+    result = None
+
+    # 模型加载（只加载一次）
+    global heart_pipeline
+    if 'heart_pipeline' not in globals():
+        heart_pipeline = joblib.load('models/heart_disease_model.pkl')  # 路径按你实际情况修改
+
+    if request.method == 'POST':
+        try:
+            # 1. 收集用户输入
+            user_data = {
+                "Age": float(request.form.get("Age")),
+                "Sex": request.form.get("Sex"),
+                "Chest pain type": request.form.get("Chest pain type"),
+                "BP": float(request.form.get("BP")),
+                "Cholesterol": float(request.form.get("Cholesterol")),
+                "FBS over 120": int(request.form.get("FBS over 120")),
+                "EKG results": request.form.get("EKG results"),
+                "Max HR": float(request.form.get("Max HR")),
+                "Exercise angina": request.form.get("Exercise angina"),
+                "ST depression": float(request.form.get("ST depression")),
+                "Slope of ST": request.form.get("Slope of ST"),
+                "Number of vessels fluro": float(request.form.get("Number of vessels fluro")),
+                "Thallium": request.form.get("Thallium")
+            }
+
+            # 2. 转为 DataFrame（模型接受 DataFrame 输入）
+            df_input = pd.DataFrame([user_data])
+
+            # 3. 推理
+            prob = heart_pipeline.predict_proba(df_input)[0][1]
+            label = "有心脏病风险" if prob >= 0.5 else "风险较低"
+
+            result = {
+                "label": label,
+                "confidence": f"{prob * 100:.2f}"
+            }
+
+        except Exception as e:
+            result = {
+                "label": "输入错误或模型故障",
+                "confidence": "0.00"
+            }
+
+    return render_template("heart-diagnosis.html", active_page="heart-diagnosis", result=result)
 
 
 if __name__ == '__main__':
