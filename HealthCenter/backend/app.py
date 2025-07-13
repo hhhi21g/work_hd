@@ -10,8 +10,7 @@ import torch
 import joblib
 from torchvision import transforms, models
 import torch.nn as nn
-import numpy as np
-from sklearn.preprocessing import StandardScaler
+
 
 app = Flask(__name__)
 
@@ -428,6 +427,13 @@ def chest_diagnosis():
                 'filename': filename
             }
 
+            if 'user_id' in session:
+                connection = get_db_connection()
+                with connection.cursor() as cursor:
+                    cursor.execute("UPDATE user SET chest_result=%s WHERE id=%s", (pred_label, session['user_id']))
+                    connection.commit()
+                connection.close()
+
     return render_template('chest-diagnosis.html', active_page='chest-diagnosis', result=result)
 
 
@@ -508,6 +514,14 @@ def diabetes_diagnosis():
                 "confidence": "0.00"
             }
 
+            if 'user_id' in session:
+                connection = get_db_connection()
+                with connection.cursor() as cursor:
+                    cursor.execute("UPDATE user SET diabetes_result=%s WHERE id=%s",
+                                   (1 if prob >= 0.5 else 0, session['user_id']))
+                    connection.commit()
+                connection.close()
+
     return render_template("diabetes-diagnosis.html", active_page="diabetes-diagnosis", result=result)
 
 
@@ -556,6 +570,14 @@ def heart_diagnosis():
                 "label": "输入错误或模型故障",
                 "confidence": "0.00"
             }
+
+            if 'user_id' in session:
+                connection = get_db_connection()
+                with connection.cursor() as cursor:
+                    cursor.execute("UPDATE user SET heart_result=%s WHERE id=%s",
+                                   (1 if prob >= 0.5 else 0, session['user_id']))
+                    connection.commit()
+                connection.close()
 
     return render_template("heart-diagnosis.html", active_page="heart-diagnosis", result=result)
 
