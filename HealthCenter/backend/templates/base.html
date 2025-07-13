@@ -6,7 +6,6 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     <style>
-        /* navbar.css */
         .navbar {
             background: linear-gradient(to right, #1e5799, #207cca);
             padding: 1em 2em;
@@ -21,6 +20,12 @@
             font-size: 1.4rem;
             font-weight: bold;
             letter-spacing: 0.5px;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 25px;
         }
 
         .navbar ul {
@@ -49,20 +54,36 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
-        @media (max-width: 600px) {
-            .navbar ul {
-                gap: 12px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+        .auth-section {
+            display: flex;
+            gap: 15px;
+        }
 
+        .auth-section a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 5px 12px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .auth-section a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
-                padding: 15px;
+                align-items: flex-start;
             }
 
-            .navbar .logo {
-                margin-bottom: 15px;
+            .nav-links {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+                gap: 10px;
             }
         }
     </style>
@@ -71,15 +92,29 @@
 <!-- ✅ 顶部导航栏 -->
 <div class="navbar">
     <div class="logo">健康大数据门户</div>
-    <ul>
-        <li><a href="/">首页</a></li>
-        <li><a href="/news">新闻中心</a></li>
-        <li><a href="/notice">通知公告</a></li>
-        <li><a href="/application">应用中心</a></li>
-        <li><a href="/policy">卫生政策</a></li>
-        <li><a href="/knowledge">健康知识</a></li>
-        <li><a href="/about">关于我们</a></li>
-    </ul>
+
+    <div class="nav-links">
+        <ul>
+            <li><a href="/">首页</a></li>
+            <li><a href="/news">新闻中心</a></li>
+            <li><a href="/notice">通知公告</a></li>
+            <li><a href="/application">应用中心</a></li>
+            <li><a href="/policy">卫生政策</a></li>
+            <li><a href="/knowledge">健康知识</a></li>
+            <li><a href="/about">关于我们</a></li>
+        </ul>
+
+        <!-- ✅ 登录注册功能区域 -->
+        <div class="auth-section">
+            {% if session.get('username') %}
+            <span style="color: #fff;">欢迎，{{ session['username'] }}</span>
+            <a href="/logout">退出</a>
+            {% else %}
+            <a href="/login">登录</a>
+            <a href="/register">注册</a>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <!-- ✅ 页面主内容 -->

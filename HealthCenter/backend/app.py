@@ -1,5 +1,5 @@
 import pandas as pd
-from flask import Flask, jsonify, render_template, send_from_directory, request
+from flask import Flask, jsonify, render_template, send_from_directory, request, session, flash, redirect, url_for
 import pymysql
 import os
 import sys
@@ -18,6 +18,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'static\\uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev_default_key')
 
 # 设置保存图片的静态目录
 GENERATED_DIR = os.path.join("static", "generated")
@@ -229,6 +230,81 @@ def api_policy():
         "total": total,
         "data": result
     })
+
+
+# 注册页面
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        connection = get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT id FROM user WHERE username=%s", (username,))
+            if cursor.fetchone():
+                flash("用户名已存在")
+                return redirect(url_for('register'))
+            cursor.execute(
+                "INSERT INTO user (username, password, chest_result, diabetes_result, heart_result)"
+                " VALUES (%s, %s, %s, 0, 0)",
+                (username, password, '无病')
+            )
+            connection.commit()
+        connection.close()
+        flash("注册成功，请登录")
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+
+# 登录页面
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        connection = get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM user WHERE username=%s AND password=%s", (username, password))
+            user = cursor.fetchone()
+        connection.close()
+
+        if user:
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            flash("登录成功")
+            return redirect('/')
+        else:
+            flash("用户名或密码错误")
+            return redirect(url_for('login'))
+    return render_template('login.html')
+
+
+# 退出登录
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("您已退出登录")
+    return redirect('/')
+
+
+# 页面全局变量注入器（健康预警）
+@app.context_processor
+def inject_user_status():
+    if 'user_id' in session:
+        connection = get_db_connection()
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT chest_result, diabetes_result, heart_result FROM user WHERE id=%s",
+                           (session['user_id'],))
+            row = cursor.fetchone()
+        connection.close()
+
+        has_risk = (
+                row['chest_result'] != '无病' or row['diabetes_result'] == 1 or row['heart_result'] == 1
+        )
+        return {'user_status': row, 'has_health_risk': has_risk}
+    return {}
 
 
 @app.route('/')
