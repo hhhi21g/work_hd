@@ -14,7 +14,7 @@
     .carousel-left {
         flex: 1.5;
         aspect-ratio: 16 / 9; /* 宽高比保持不变 */
-        width: 100%;
+        width: 70%;
         height: auto; /* 让高度由比例决定 */
         position: relative;
         overflow: hidden;
@@ -77,13 +77,14 @@
 
     .card-section {
         background: white;
-        padding: 1em;
+        padding: 1.5em; /* ✅ 适度减小空白空间 */
         border-radius: 10px;
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        font-size: 1.1rem; /* ✅ 字体略调大 */
     }
 
     .card-title {
-        font-size: 1.4em;
+        font-size: 1.5em; /* ✅ 标题再大一点更突出 */
         margin-bottom: 0.8em;
         border-left: 4px solid #007acc;
         padding-left: 0.5em;
@@ -98,12 +99,16 @@
     }
 
     .card-list li {
-        margin-bottom: 0.5em;
+        margin-bottom: 0.6em;
+        font-size: 1.1rem;
     }
 
     .card-list li a {
         text-decoration: none;
         color: #333;
+        white-space: nowrap; /* 不换行 */
+        overflow: hidden; /* 溢出隐藏 */
+        text-overflow: ellipsis; /* 用省略号显示超出部分 */
     }
 
     .card-list li a:hover {
@@ -114,13 +119,13 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        gap: 1em;
-        margin: 2em;
+        gap: 1.5em; /* ✅ 增加卡片间距 */
+        margin: 5em 4em; /* ✅ 加大左右边距 */
     }
 
     .card-row .card-section {
-        flex: 0 0 calc(50% - 0.5em); /* ✅ 精确适配 gap */
-        max-width: calc(50% - 0.5em);
+        flex: 0 0 calc(50% - 0.75em); /* ✅ 自适应宽度，适配 gap 增大 */
+        max-width: calc(50% - 0.75em);
         box-sizing: border-box;
     }
 
@@ -227,11 +232,27 @@
 <!-- 每行两个卡片 -->
 <div class="card-row">
     <div class="card-section">
-        <h2 class="card-title">新闻中心</h2>
+        <h2 class="card-title" data-type="news">新闻中心</h2>
+        <!-- 显示悬浮图片的容器 -->
+        <div id="hover-image-preview" style="
+    position: fixed;
+    right: 30px;
+    bottom: 80px;
+    width: 300px;
+    height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 999;
+">
+            <img id="hover-image" src="" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+
         <ul class="card-list" id="home-news-list"></ul>
     </div>
     <div class="card-section">
-        <h2 class="card-title">卫生政策</h2>
+        <h2 class="card-title" data-type="policy">卫生政策</h2>
         <ul class="card-list" id="home-policy-list"></ul>
     </div>
 </div>
@@ -239,11 +260,11 @@
 <!-- 再来一行 -->
 <div class="card-row">
     <div class="card-section">
-        <h2 class="card-title">健康知识库</h2>
+        <h2 class="card-title" data-type="knowledge">健康知识库</h2>
         <ul class="card-list" id="home-knowledge-list"></ul>
     </div>
     <div class="card-section">
-        <h2 class="card-title">通知公告</h2>
+        <h2 class="card-title" data-type="notice">通知公告</h2>
         <ul class="card-list" id="home-notice-list"></ul>
     </div>
 </div>
@@ -318,6 +339,24 @@
             });
         })
         .catch(err => console.error('加载知识列表失败:', err));
+</script>
+
+<script>
+    const preview = document.getElementById("hover-image-preview");
+    const img = document.getElementById("hover-image");
+
+    document.querySelectorAll(".card-title").forEach(title => {
+        const type = title.dataset.type;
+
+        title.addEventListener("mouseenter", () => {
+            img.src = `/static/wordclouds/${type}.png`;
+            preview.style.display = "block";
+        });
+
+        title.addEventListener("mouseleave", () => {
+            preview.style.display = "none";
+        });
+    });
 </script>
 
 <!-- ✅ 医学声明页脚 -->
