@@ -12,11 +12,14 @@
     }
 
     .carousel-left {
-        flex: 2;
-        height: 320px;
-        overflow: hidden;
+        flex: 1.5;
+        aspect-ratio: 16 / 9; /* 宽高比保持不变 */
+        width: 100%;
+        height: auto; /* 让高度由比例决定 */
         position: relative;
+        overflow: hidden;
     }
+
 
     .carousel-left img {
         width: 100%;
@@ -31,30 +34,30 @@
 
     .carousel-right {
         flex: 1;
+        height: auto; /* ✅ 允许其跟随左侧高度变化 */
         background: #f9f9f9;
-        padding: 1em;
+        padding: 1.5em;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        gap: 0.3em;
-        max-height: 320px;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        font-size: 1em;
+        justify-content: space-between; /* ✅ 可选：更好地分布内容 */
+        gap: 0.6em;
+        font-size: 1.1em;
         font-weight: 500;
-        letter-spacing: 0.2px;
-        text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
-        font-weight: 600;
         font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+        overflow-y: auto;
     }
 
+
     .carousel-right div {
-        padding: 0.5em 0.8em;
+        padding: 0.6em 1em; /* 稍微加大内边距 */
+        margin-bottom: 0.4em;
         cursor: pointer;
         border-left: 4px solid transparent;
         transition: all 0.2s ease;
         color: #333;
-        font-size: 0.95em;
+        font-size: 1em;
+        font-weight: 600;
+        line-height: 1.5;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -319,7 +322,8 @@
 
 <!-- ✅ 医学声明页脚 -->
 <footer style="margin-top: 60px; background-color: #f8f8f8; padding: 20px; text-align: center; font-size: 0.9rem; color: #555;">
-    <p><strong>医学声明：</strong>本网站所提供的疾病检测结果仅供参考，不能替代专业医生的诊断和建议。如有不适或健康疑虑，请及时就医。</p>
+    <p><strong>医学声明：</strong>本网站所提供的疾病检测结果仅供参考，不能替代专业医生的诊断和建议。如有不适或健康疑虑，请及时就医。
+    </p>
 </footer>
 
 

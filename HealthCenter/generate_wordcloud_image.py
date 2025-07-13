@@ -17,7 +17,7 @@ db_config = {
 def fetch_titles():
     conn = pymysql.connect(**db_config)
     cursor = conn.cursor()
-    cursor.execute("SELECT title FROM news")  # 可改为其他表名
+    cursor.execute("SELECT title FROM policy")  # 可改为其他表名
     rows = cursor.fetchall()
     conn.close()
     return [row[0] for row in rows]
@@ -27,12 +27,12 @@ def extract_keywords(titles):
     words = []
     for title in titles:
         words += jieba.lcut(title)
-    stopwords = set("的了是和在与就也为不对等及".split())
+    stopwords = set("的了是和在与就也为不对等及 关于 如何 做好 这些 这样".split())
     words = [w for w in words if len(w) > 1 and w not in stopwords]
     return Counter(words)
 
 # 4. 生成词云图
-def generate_wordcloud(counter, output_path='wordcloud.png'):
+def generate_wordcloud(counter, output_path='wordcloud_policy.png'):
     wc = WordCloud(
         font_path='simhei.ttf',  # 中文字体路径，确保有 simhei.ttf
         background_color='white',
