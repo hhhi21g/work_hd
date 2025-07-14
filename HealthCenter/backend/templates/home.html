@@ -13,13 +13,12 @@
 
     .carousel-left {
         flex: 1.5;
-        aspect-ratio: 16 / 9; /* 宽高比保持不变 */
+        aspect-ratio: 16 / 9;
         width: 70%;
-        height: auto; /* 让高度由比例决定 */
+        height: auto;
         position: relative;
         overflow: hidden;
     }
-
 
     .carousel-left img {
         width: 100%;
@@ -34,12 +33,12 @@
 
     .carousel-right {
         flex: 1;
-        height: auto; /* ✅ 允许其跟随左侧高度变化 */
+        height: auto;
         background: #f9f9f9;
         padding: 1.5em;
         display: flex;
         flex-direction: column;
-        justify-content: space-between; /* ✅ 可选：更好地分布内容 */
+        justify-content: space-between;
         gap: 0.6em;
         font-size: 1.1em;
         font-weight: 500;
@@ -47,9 +46,8 @@
         overflow-y: auto;
     }
 
-
     .carousel-right div {
-        padding: 0.6em 1em; /* 稍微加大内边距 */
+        padding: 0.6em 1em;
         margin-bottom: 0.4em;
         cursor: pointer;
         border-left: 4px solid transparent;
@@ -77,19 +75,20 @@
 
     .card-section {
         background: white;
-        padding: 1.5em; /* ✅ 适度减小空白空间 */
+        padding: 1.5em;
         border-radius: 10px;
         box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-        font-size: 1.1rem; /* ✅ 字体略调大 */
+        font-size: 1.1rem;
     }
 
     .card-title {
-        font-size: 1.5em; /* ✅ 标题再大一点更突出 */
+        font-size: 1.5em;
         margin-bottom: 0.8em;
         border-left: 4px solid #007acc;
         padding-left: 0.5em;
         color: #007acc;
         font-weight: bold;
+        cursor: pointer;
     }
 
     .card-list {
@@ -106,9 +105,9 @@
     .card-list li a {
         text-decoration: none;
         color: #333;
-        white-space: nowrap; /* 不换行 */
-        overflow: hidden; /* 溢出隐藏 */
-        text-overflow: ellipsis; /* 用省略号显示超出部分 */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .card-list li a:hover {
@@ -119,18 +118,16 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        gap: 1.5em; /* ✅ 增加卡片间距 */
-        margin: 5em 4em; /* ✅ 加大左右边距 */
+        gap: 1.5em;
+        margin: 5em 4em;
     }
 
     .card-row .card-section {
-        flex: 0 0 calc(50% - 0.75em); /* ✅ 自适应宽度，适配 gap 增大 */
+        flex: 0 0 calc(50% - 0.75em);
         max-width: calc(50% - 0.75em);
         box-sizing: border-box;
     }
 
-
-    /* 响应式处理（小屏变一列） */
     @media (max-width: 768px) {
         .card-row .card-section {
             flex: 1 1 100%;
@@ -138,117 +135,38 @@
         }
     }
 
+    /* 悬浮图片容器 */
+    #hover-image-preview {
+        position: absolute;
+        display: none;
+        pointer-events: none;
+        z-index: 999;
+    }
 
+    #hover-image-preview img {
+        width: 400px;
+        height: auto;
+        max-height: 300px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 </style>
 
-<!-- 首页轮播模块 -->
+<!-- 轮播图模块 -->
 <div class="carousel-container">
-    <div class="carousel-left" id="carousel-images">
-        <!-- 静态图片轮播显示 -->
-        <!-- 图片会动态插入 -->
-    </div>
-    <div class="carousel-right" id="carousel-titles">
-        <!-- 右侧标题由 JS 注入 -->
-    </div>
+    <div class="carousel-left" id="carousel-images"></div>
+    <div class="carousel-right" id="carousel-titles"></div>
 </div>
 
-<script>
-    fetch('/api/home/news')
-        .then(res => res.json())
-        .then(data => {
-            const titles = document.getElementById('carousel-titles');
-            const imagesContainer = document.getElementById('carousel-images');
-            let current = 0;
+<!-- 词云图片悬浮容器 -->
+<div id="hover-image-preview">
+    <img id="hover-image" src="">
+</div>
 
-            const count = Math.min(data.length, 10);  // 获取新闻条目数量（最多10条）
-
-            titles.innerHTML = '';
-            imagesContainer.innerHTML = '';
-
-            // 循环生成标题和图片
-            data.slice(0, count).forEach((item, i) => {
-                // 添加图片
-                const img = document.createElement('img');
-                img.src = item.image_url || "/static/default.jpg";  // 默认图片处理
-                if (i === 0) {
-                    img.classList.add('active');
-                }
-
-                imagesContainer.appendChild(img);
-
-                // 添加标题
-                const div = document.createElement('div');
-                div.title = item.title;
-
-                const link = document.createElement('a');
-                link.href = item.url || "#";
-                link.target = "_blank";
-                link.innerText = item.title;
-                link.style.textDecoration = "none";
-                link.style.color = "inherit";
-                link.style.display = "block";
-
-                div.appendChild(link);
-                div.addEventListener('mouseenter', () => {
-                    current = i;
-                    updateCarousel(i);  // 更新当前显示的图片和标题
-                });
-
-                titles.appendChild(div);
-            });
-
-            // 轮播更新逻辑
-            function updateCarousel(index) {
-                const imgs = imagesContainer.querySelectorAll('img');
-                const titlesList = titles.querySelectorAll('div');
-
-                // 切换图片显示
-                imgs.forEach((img, i) => {
-                    img.classList.toggle('active', i === index);
-                });
-                // 切换标题的样式
-                titlesList.forEach((el, i) => {
-                    el.classList.toggle('active', i === index);
-                });
-            }
-
-            // 初始化第一个新闻为显示状态
-            if (count > 0) {
-                updateCarousel(0);
-
-                // 每5秒切换到下一个新闻
-                setInterval(() => {
-                    current = (current + 1) % count;
-                    updateCarousel(current);
-                }, 5000);
-            }
-        })
-        .catch(err => {
-            console.error("获取新闻失败", err);
-        });
-
-</script>
-
-<!-- 每行两个卡片 -->
+<!-- 四大卡片 -->
 <div class="card-row">
     <div class="card-section">
         <h2 class="card-title" data-type="news">新闻中心</h2>
-        <!-- 显示悬浮图片的容器 -->
-        <div id="hover-image-preview" style="
-    position: fixed;
-    right: 30px;
-    bottom: 80px;
-    width: 300px;
-    height: 180px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    display: none;
-    z-index: 999;
-">
-            <img id="hover-image" src="" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-
         <ul class="card-list" id="home-news-list"></ul>
     </div>
     <div class="card-section">
@@ -257,10 +175,9 @@
     </div>
 </div>
 
-<!-- 再来一行 -->
 <div class="card-row">
     <div class="card-section">
-        <h2 class="card-title" data-type="knowledge">健康知识库</h2>
+        <h2 class="card-title" data-type="knowledges">健康知识库</h2>
         <ul class="card-list" id="home-knowledge-list"></ul>
     </div>
     <div class="card-section">
@@ -269,78 +186,62 @@
     </div>
 </div>
 
+<!-- 数据填充脚本 -->
 <script>
-    fetch('/api/home2/news')
+    // 轮播图加载
+    fetch('/api/home/news')
         .then(res => res.json())
         .then(data => {
-            const ul = document.getElementById('home-news-list');
-            data.forEach(item => {
-                const li = document.createElement('li');
+            const titles = document.getElementById('carousel-titles');
+            const imagesContainer = document.getElementById('carousel-images');
+            let current = 0;
+            const count = Math.min(data.length, 10);
+            titles.innerHTML = '';
+            imagesContainer.innerHTML = '';
+
+            data.slice(0, count).forEach((item, i) => {
+                const img = document.createElement('img');
+                img.src = item.image_url || "/static/default.jpg";
+                if (i === 0) img.classList.add('active');
+                imagesContainer.appendChild(img);
+
+                const div = document.createElement('div');
+                div.title = item.title;
                 const link = document.createElement('a');
-                link.href = item.url || '#';
-                link.target = '_blank';
+                link.href = item.url || "#";
+                link.target = "_blank";
                 link.innerText = item.title;
-                li.appendChild(link);
-                ul.appendChild(li);
+                link.style.textDecoration = "none";
+                link.style.color = "inherit";
+                link.style.display = "block";
+                div.appendChild(link);
+
+                div.addEventListener('mouseenter', () => {
+                    current = i;
+                    updateCarousel(i);
+                });
+
+                titles.appendChild(div);
             });
-        })
-        .catch(err => console.error('加载知识列表失败:', err));
+
+            function updateCarousel(index) {
+                const imgs = imagesContainer.querySelectorAll('img');
+                const titlesList = titles.querySelectorAll('div');
+                imgs.forEach((img, i) => img.classList.toggle('active', i === index));
+                titlesList.forEach((el, i) => el.classList.toggle('active', i === index));
+            }
+
+            if (count > 0) {
+                updateCarousel(0);
+                setInterval(() => {
+                    current = (current + 1) % count;
+                    updateCarousel(current);
+                }, 5000);
+            }
+        });
 </script>
 
-<script>
-    fetch('/api/home/knowledges')
-        .then(res => res.json())
-        .then(data => {
-            const ul = document.getElementById('home-knowledge-list');
-            data.forEach(item => {
-                const li = document.createElement('li');
-                const link = document.createElement('a');
-                link.href = item.url || '#';
-                link.target = '_blank';
-                link.innerText = item.title;
-                li.appendChild(link);
-                ul.appendChild(li);
-            });
-        })
-        .catch(err => console.error('加载知识列表失败:', err));
-</script>
-
-<script>
-    fetch('/api/home/notices')
-        .then(res => res.json())
-        .then(data => {
-            const ul = document.getElementById('home-notice-list');
-            data.forEach(item => {
-                const li = document.createElement('li');
-                const link = document.createElement('a');
-                link.href = item.url || '#';
-                link.target = '_blank';
-                link.innerText = item.title;
-                li.appendChild(link);
-                ul.appendChild(li);
-            });
-        })
-        .catch(err => console.error('加载知识列表失败:', err));
-</script>
-
-<script>
-    fetch('/api/home/policies')
-        .then(res => res.json())
-        .then(data => {
-            const ul = document.getElementById('home-policy-list');
-            data.forEach(item => {
-                const li = document.createElement('li');
-                const link = document.createElement('a');
-                link.href = item.url || '#';
-                link.target = '_blank';
-                link.innerText = item.title;
-                li.appendChild(link);
-                ul.appendChild(li);
-            });
-        })
-        .catch(err => console.error('加载知识列表失败:', err));
-</script>
-
+<!-- 词云悬浮显示逻辑 -->
 <script>
     const preview = document.getElementById("hover-image-preview");
     const img = document.getElementById("hover-image");
@@ -349,8 +250,13 @@
         const type = title.dataset.type;
 
         title.addEventListener("mouseenter", () => {
-            img.src = `/static/wordclouds/${type}.png`;
+            img.src = `/static/wordclouds/wordcloud_${type}.png`;
             preview.style.display = "block";
+        });
+
+        title.addEventListener("mousemove", (e) => {
+            preview.style.left = e.pageX + 20 + "px";
+            preview.style.top = e.pageY - 40 + "px";
         });
 
         title.addEventListener("mouseleave", () => {
@@ -359,11 +265,35 @@
     });
 </script>
 
-<!-- ✅ 医学声明页脚 -->
+<!-- 内容加载 -->
+<script>
+    function loadList(url, containerId) {
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const ul = document.getElementById(containerId);
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = item.url || '#';
+                    link.target = '_blank';
+                    link.innerText = item.title;
+                    li.appendChild(link);
+                    ul.appendChild(li);
+                });
+            });
+    }
+
+    loadList('/api/home2/news', 'home-news-list');
+    loadList('/api/home/policies', 'home-policy-list');
+    loadList('/api/home/knowledges', 'home-knowledge-list');
+    loadList('/api/home/notices', 'home-notice-list');
+</script>
+
+<!-- 页脚 -->
 <footer style="margin-top: 60px; background-color: #f8f8f8; padding: 20px; text-align: center; font-size: 0.9rem; color: #555;">
     <p><strong>医学声明：</strong>本网站所提供的疾病检测结果仅供参考，不能替代专业医生的诊断和建议。如有不适或健康疑虑，请及时就医。
     </p>
 </footer>
-
 
 {% endblock %}
