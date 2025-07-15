@@ -390,12 +390,12 @@ def chest_diagnosis():
 
     # 图像预处理
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),  # 修改成模型需要的尺寸
+        transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize([0.5] * 3, [0.5] * 3)
     ])
 
-    # 加载模型（仅第一次加载）
+    # 加载模型
     global model_chest
     if 'model_chest' not in globals():
         model_chest = models.resnet18(num_classes=14)
@@ -441,8 +441,6 @@ def chest_diagnosis():
 def diabetes_diagnosis():
     result = None
 
-    # 定义模型结构（必须与训练时一致）
-    # 正确的模型结构（与你训练时完全一致）
     class DiabetesNet(nn.Module):
         def __init__(self):
             super(DiabetesNet, self).__init__()
@@ -466,14 +464,14 @@ def diabetes_diagnosis():
         def forward(self, x):
             return self.net(x)
 
-    # 加载模型（仅第一次）
+    # 加载模型
     global diabetes_model
     if 'diabetes_model' not in globals():
         diabetes_model = DiabetesNet()
         diabetes_model.load_state_dict(torch.load("models/diabetes_model.pth", map_location='cpu'))
         diabetes_model.eval()
 
-    # 加载标准化器（仅第一次）
+    # 加载标准化器
     global diabetes_scaler
     if 'diabetes_scaler' not in globals():
         import joblib
